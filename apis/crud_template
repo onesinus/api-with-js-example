@@ -1,0 +1,71 @@
+const express   = require('express');
+const router    = express.Router();
+
+const User      = require("../schemas/user");
+
+// All Data
+router.get("/", (req, res) => {
+  User.find((err, data) => {
+    if (err) return res.json({ success: false, error: err });
+    return res.json({ success: true, data });
+  }).sort({
+    username: 1
+  });
+});
+
+// Get One
+router.get('/:id', (req, res) => {
+  User.findById(req.params.id, (err,data) => {
+    if (err) return res.send(err);
+    return res.json({
+      success: true,
+      data
+    })
+  })
+})
+
+// Add Data
+router.post("/", (req, res) => {
+  let data = new User();
+
+  const { username, name, role, password } = req.body;
+
+  data["username"]  = username;
+  data["name"]      = name;
+  data["role"]      = role;
+  data["password"]  = password;
+
+  if (username == "" && role == "") {
+    return res.json({
+      success: false,
+      error: "INVALID INPUTS"
+    });
+  }
+
+  data.save(err => {
+    if (err) return res.json({ success: false, error: err });
+    return res.json({ success: true });
+  });
+});
+
+// Update Data
+router.put("/:id", (req, res) => {
+  const { username, name, role, password } = req.body;
+  const update = { username, name, role, password };
+  
+  User.findByIdAndUpdate(req.params.id, update, err => {
+    if (err) return res.json({ success: false, error: err });
+    return res.json({ success: true });
+  });
+});
+
+// Delete Data
+router.delete("/:id", (req, res) => {
+  User.findByIdAndRemove(req.params.id, err => {
+    if (err) return res.send(err);
+    return res.json({ success: true });
+  });
+});
+
+
+module.exports = router
