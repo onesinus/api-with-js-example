@@ -4,7 +4,7 @@ const authentication = (req, res, next) => {
     if (token && verifyToken(token)) {
         next();
     }else {
-        res.json({ err_msg: 'You are forbidden to access' });
+    	res.status(401).json({ err_msg: 'You are forbidden to access' });
     }
 }
 

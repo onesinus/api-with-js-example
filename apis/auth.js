@@ -11,7 +11,7 @@ const { compare } = require("../helpers/bcrypt");
 router.post("/login", (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
-    return res.json({ success: false, err_msg: 'Username and password cannot be empty!' });
+    return res.status(400).json({ success: false, err_msg: 'Username and password cannot be empty!' });
   }else if (username === "ospt" && password === "ospt") {
     return res.json({ success: true, token: generateToken({ username, name: "Super Admin" }) })
   } else {

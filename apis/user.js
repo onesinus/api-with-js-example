@@ -2,16 +2,28 @@ const express   = require('express');
 const router    = express.Router();
 
 const { hash } = require("../helpers/bcrypt");
+const { setValue, getValue } = require("../helpers/redis");
 
 const User      = require("../schemas/user");
 
 // All Data
 router.get("/", (req, res) => {
-  User.find((err, data) => {
-    if (err) return res.json({ success: false, err_msg: err });
-    return res.json({ success: true, data });
-  }).sort({
-    username: 1
+  const cache_name = 'users';
+  getValue(cache_name, (err, users_cache) => {
+    if (users_cache) {
+      return res.json({
+        success: true,
+        data: JSON.parse(users_cache)
+      });
+    }else {
+      User.find((err, data) => {
+        if (err) return res.json({ success: false, err_msg: err });
+        setValue(cache_name, JSON.stringify(data));
+        return res.json({ success: true, data })
+      }).sort({
+        username: 1
+      });
+    }
   });
 });
 
